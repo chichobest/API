@@ -31,18 +31,18 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $hidden = ['password', 'created_at', 'uptadet_at'];
+    protected $hidden = ['password', 'created_at', 'updated_at'];
 
     public function getMisPorras(){
         return $this->hasMany('App\Porra', 'propietario');
     }
 
     public function getAmigos(){
-        return $this->belongsToMany('App\Usuario', 'amistad' ,'user_id', 'friend_id')->withPivot('aceptado');
+        return $this->belongsToMany('App\User', 'amistades' ,'user_id', 'friend_id')->withPivot('aceptado');
     }
 
     public function getPeticionesAmistad(){
-        return $this->belongsToMany('App\Usuario', 'amistad' ,'friend_id', 'user_id')->withPivot('aceptado');
+        return $this->belongsToMany('App\User', 'amistades' ,'friend_id', 'user_id')->withPivot('aceptado');
     }
 
     public function getPorras(){

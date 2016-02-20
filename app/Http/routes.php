@@ -11,8 +11,16 @@
 |
 */
 
-Route::resource('user', 'UsersController');
-Route::resource('porra', 'PorrasController');
-Route::resource('pronostico', 'PronosticosController');
-Route::resource('user.user', 'AmistadController');
-Route::resource('user.porra', 'UserPorrasController');
+Route::resource('user', 'UsersController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+//Route::resource('porra', 'PorrasController');
+//Route::resource('pronostico', 'PronosticosController');
+//Route::resource('user.porra', 'UserPorrasController');
+
+Route::get('/user/{user_id}/user', 'AmistadController@indexAmigos');
+Route::get('/user/user/{user_id}', 'AmistadController@indexPeticionesAmistad');
+Route::post('/user/{user_id}/user/{friend_id}', 'AmistadController@enviarPeticionAmistad');
+Route::put('/user/{user_id}/user/{friend_id}', 'AmistadController@aceptarAmistad');
+
+Route::post('oauth/access_token', function() {
+    return Response::json(Authorizer::issueAccessToken());
+});
