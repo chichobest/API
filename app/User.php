@@ -24,12 +24,32 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $fillable = ['name', 'email', 'password'];
+    protected $fillable = ['id', 'nick', 'name', 'email', 'telefono', 'URL_image', 'password'];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'created_at', 'uptadet_at'];
+
+    public function getMisPorras(){
+        return $this->hasMany('App\Porra', 'propietario');
+    }
+
+    public function getAmigos(){
+        return $this->belongsToMany('App\Usuario', 'amistad' ,'user_id', 'friend_id')->withPivot('aceptado');
+    }
+
+    public function getPeticionesAmistad(){
+        return $this->belongsToMany('App\Usuario', 'amistad' ,'friend_id', 'user_id')->withPivot('aceptado');
+    }
+
+    public function getPorras(){
+        return $this->belongsToMany('App\Porra')->withPivot('pagado');
+    }
+
+    public function getPronosticos(){
+        return $this->hasMany('App\Pronostico');
+    }
 }

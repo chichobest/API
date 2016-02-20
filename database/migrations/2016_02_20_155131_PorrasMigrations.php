@@ -14,6 +14,12 @@ class PorrasMigrations extends Migration
     {
         Schema::create('porras', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('nombre');
+            $table->integer('apuesta');
+            $table->integer('bote');
+            $table->integer('vuelta');
+            $table->integer('propietario')->unsigned();
+            $table->foreign('propietario')->references('id')->on('users');
             $table->timestamps();
         });
     }

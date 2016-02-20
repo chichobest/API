@@ -13,7 +13,12 @@ class PorraUserMigration extends Migration
     public function up()
     {
         Schema::create('porra_user', function (Blueprint $table) {
-            $table->increments('id');
+            $table->integer('porra_id')->unsigned();
+            $table->foreign('porra_id')->references('id')->on('porras');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->primary(array('porra_id', 'user_id'));
+            $table->boolean('pagado')->default(false);
             $table->timestamps();
         });
     }

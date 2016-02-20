@@ -14,6 +14,13 @@ class PronosticosMigration extends Migration
     {
         Schema::create('pronosticos', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('id_partido');
+            $table->integer('goles_local');
+            $table->integer('goles_visitante');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->integer('porra_id')->unsigned();
+            $table->foreign('porra_id')->references('id')->on('porras');
             $table->timestamps();
         });
     }

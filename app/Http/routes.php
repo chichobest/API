@@ -11,6 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::resource('user', 'UsersController');
+Route::resource('porra', 'PorrasController');
+Route::resource('pronostico', 'PronosticosController');
+Route::resource('user.user', 'AmistadController');
+Route::resource('user.porra', 'UserPorrasController');
