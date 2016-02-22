@@ -24,4 +24,4 @@ Route::put('/user/{user_id}/user/{friend_id}', 'AmistadController@aceptarAmistad
 Route::post('oauth/access_token', function() {
     return Response::json(Authorizer::issueAccessToken());
 });
-Route::patch('/self', 'UsersController@self');
+Route::get('/connect', 'UsersController@login');

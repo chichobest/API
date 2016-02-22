@@ -14,12 +14,11 @@ class UsersController extends Controller {
 
     public function __construct(){
 
-        $this->middleware('oauth', ['only' => ['self','show','update','destroy']]);
+        $this->middleware('oauth', ['only' => ['connect','show','update','destroy']]);
     }
 
-    public function self(){
-        $user_id = Authorizer::getResourceOwnerId();
-        return User::find($user_id);
+    public function connect(){
+        return $this->respuestaOK("Connection OK", 200);
     }
 
     /**
@@ -43,7 +42,7 @@ class UsersController extends Controller {
         $owner_id = Authorizer::getResourceOwnerId();
 
         if ($id != $owner_id){
-            return $this->respuestaError("El usuario conectado no puede modificar estos datos", 401);
+            return $this->respuestaError("El usuario conectado no puede consultar estos datos", 401);
         }
 
         if ($usuario){
