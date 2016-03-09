@@ -6,17 +6,44 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use App\User;
+use App\Porra;
 
-class UserPorrasController extends Controller
-{
+class UserPorrasController extends Controller{
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
-    {
-        //
+    public function indexMisPorras($id) {
+        $usuario = User::find($id);
+
+        if ($usuario){
+            $porras = $usuario->getMisPorras;
+            return $this->respuestaOK($porras, 200);        
+        }   
+        return $this->respuestaError("No existe el usuario", 404);
+
+    }
+
+    public function indexPorrasUser($id) {
+        $usuario = User::find($id);
+
+        if ($usuario){
+            $porras = $usuario->getPorras;
+            return $this->respuestaOK($porras, 200);        
+        }   
+        return $this->respuestaError("No existe el usuario", 404);
+
+    }
+
+    public function indexUsersPorra($id){
+        $porra = Porra::find($id);
+        if ($porra){
+            $usuarios = $porra->getUsuarios;
+            return $this->respuestaOK($usuarios, 200);
+        }
+        return $this->respuestaError("No existe el usuario", 404);
     }
 
     /**
@@ -35,9 +62,23 @@ class UserPorrasController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        //
+    public function store(Request $request, $id_propietario) {
+        $usuario = User::find($id_propietario);
+
+        if ($usuario){
+            $this->validation($request);
+
+            $campos = $request->all();
+            $campos['bote'] = 0;
+            $campos['vuelta'] = 1;
+            $campos['propietario'] = $id_propietario;
+
+            $porra = Porra::create($campos);
+            $porra->getUsuarios()->attach($id_propietario);
+
+            return $this->respuestaOK($porra, 200);
+        }
+        return $this->respuestaError('El usuario no existe', 404);
     }
 
     /**
@@ -83,5 +124,15 @@ class UserPorrasController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function validation ($request){
+        $reglas =
+        [
+            'nombre' => 'required',
+            'apuesta' => 'required|numeric',
+        ];
+
+        $this->validate($request, $reglas);
     }
 }

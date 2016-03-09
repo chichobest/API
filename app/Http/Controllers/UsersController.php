@@ -18,7 +18,9 @@ class UsersController extends Controller {
     }
 
     public function connect(){
-        return $this->respuestaOK("Connection OK", 200);
+        $id = Authorizer::getResourceOwnerId();
+        $usuario = User::find($id);
+        return $this->respuestaOK($usuario, 200);
     }
 
     /**

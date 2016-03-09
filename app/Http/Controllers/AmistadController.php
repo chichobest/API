@@ -8,12 +8,25 @@ use App\User;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
+use LucaDegasperi\OAuth2Server\Facades\Authorizer;
+
 class AmistadController extends Controller{
 
-    public function indexAmigos($id){
+    public function __construct(){
+
+        $this->middleware('oauth', ['only' => ['indexAmigos','indexAllAmigos','indexPeticionesAmistad','enviarPeticionAmistad','aceptarAmistad']]);
+    }
+
+    public function indexAllAmigos($id){
         $usuario = User::find($id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede consultar esta lista de amigos", 401);
+        }
+
         if ($usuario){
-            $amigos = $usuario->getAmigos;
+            $amigos = $usuario->getAmigos()->orderby('nick','asc')->get();
             if ($amigos){
                 return $this->respuestaOK($amigos, 200);
             }
@@ -22,8 +35,32 @@ class AmistadController extends Controller{
         return $this->respuestaError("No existe el usuario con ID $id", 404);
     }
 
+    public function indexAmigos($id){
+        $usuario = User::find($id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede consultar esta lista de amigos", 401);
+        }
+
+        if ($usuario){
+            $amigos = $usuario->getAmigos()->orderby('nick','asc')->wherePivot('aceptado', true)->get();
+            if ($amigos){
+                return $this->respuestaOK($amigos, 200);
+            }
+            return $this->respuestaError("Este usuario no tiene amigos asociados", 404);
+        }
+        return $this->respuestaError("No existe el usuario con ID $id", 404);
+    }
+
+
     public function indexPeticionesAmistad($id){
         $usuario = User::find($id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede consultar las peticiones de amistad", 401);
+        }
         if ($usuario){
             $amigos = $usuario->getPeticionesAmistad()->wherePivot('aceptado', false)->get();
             if ($amigos){
@@ -39,11 +76,20 @@ class AmistadController extends Controller{
             return $this->respuestaError("Los usuarios no pueden ser el mismo", 400);
         }
 
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($user_id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede enviar esta peticion", 401);
+        }
+
         $user = User::find($user_id);
         $friend = User::find($friend_id);
         if ($user && $friend){
             if($user->getAmigos->find($friend_id)){
                 return $this->respuestaError("Ya existe relación entre $user_id y $friend_id", 409);
+            }
+            if ($user->getPeticionesAmistad->find($friend_id)){
+                return $this->aceptarAmistad($user_id,$friend_id);
             }
             $user->getAmigos()->attach($friend);
             return $this->respuestaOK("Solicitud de amistad enviada correctamente", 200);
@@ -54,6 +100,11 @@ class AmistadController extends Controller{
     public function aceptarAmistad($user_id, $friend_id){
         $user = User::find($user_id);
         $friend = User::find($friend_id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($user_id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede aceptar esta amistad", 401);
+        }
 
         if ($user && $friend){
             $amistad1 = $friend->getAmigos()->find($user_id);

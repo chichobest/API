@@ -6,15 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pronostico extends Model {
 
-    protected $fillable = ['id', 'id_partido', 'goles_local', 'goles_visitante'];
+    protected $fillable = ['partido_id', 'user_id', 'porra_id', 'goles_local', 'goles_visitante', 'cerrado'];
 
-    protected $hidden = ['id', 'created_at', 'uptadet_at'];
+    protected $hidden = ['created_at', 'updated_at'];
 
     public function usuario(){
-        return $this->belongsTo('App\Usuario');
+        return $this->belongsTo('App\User');
     }
 
     public function porra(){
         return $this->belongsTo('App\Porra');
-    }   
+    }
 }

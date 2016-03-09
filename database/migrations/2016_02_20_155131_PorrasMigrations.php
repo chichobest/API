@@ -18,9 +18,11 @@ class PorrasMigrations extends Migration
             $table->integer('apuesta');
             $table->integer('bote');
             $table->integer('vuelta');
+            $table->integer('n_jugadores');
             $table->integer('propietario')->unsigned();
             $table->foreign('propietario')->references('id')->on('users');
-            $table->timestamps();
+            $table->timestamp('fecha_inicio');
+            $table->timestamp('fecha_fin');
         });
     }
 

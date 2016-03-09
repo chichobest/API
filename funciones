@@ -1,0 +1,35 @@
+    public Porra getJugadoresPorra (int ID){}
+
+    public Porra crearPorra (String nombre, float apuesta, float bote, int vuelta){}
+
+    public ArrayList getListaPorras () {}
+
+    public ArrayList getPorrasBloqueadas () {}
+
+    public boolean existePorraJugador(int IDjugador, int IDporra){}
+
+    public boolean estaPagada(int IDjugador, int IDporra){}
+
+    public void marcarPago (int IDJugador, int IDPorra, boolean pagado){}
+
+    public int cuantosPagaron(int IDPorra){}
+
+    public void actualizarPorra (Porra p){}
+
+    public void crearPronostico (int idJugador, int idPartido, int idPorra){}
+
+    public void crearPorraJugador (int idJugador, int idPorra){}
+
+    public ArrayList getPartidosPorra(int IDporra){}
+
+    public Pronostico getPronostico (int IDJugador, int IDPartido, int IDPorra){}
+
+    public void actualizarPronostico (int idJugador, int idPartido, int idPorra, int local, int visitante){}
+
+    public void borrarPronosticoPartido(int IDpartido, int IDporra){}
+
+    public void borrarJugadorPorra(int IDjugador, int IDporra){}
+
+    public boolean existePronostico (int IDJugador, int IDporra, int IDPartido){}
+
+    public void borrarPorra (int IDporra){}
