@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Pronostico extends Model {
 
-    protected $fillable = ['partido_id', 'user_id', 'porra_id', 'goles_local', 'goles_visitante', 'cerrado'];
+    protected $fillable = ['id','partido_id', 'user_id', 'porra_id', 'goles_local', 'goles_visitante', 'cerrado'];
 
     protected $hidden = ['created_at', 'updated_at'];
 

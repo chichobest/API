@@ -13,6 +13,7 @@ class PronosticosMigration extends Migration
     public function up()
     {
         Schema::create('pronosticos', function (Blueprint $table) {
+            $table->increments('id');
             $table->integer('partido_id')->unsigned();
             $table->integer('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users');
@@ -21,7 +22,6 @@ class PronosticosMigration extends Migration
             $table->integer('goles_local')->default(null);
             $table->integer('goles_visitante')->default(null);
             $table->boolean('cerrado')->default(false);
-            $table->primary(array('partido_id','porra_id', 'user_id'));
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@ class AmistadController extends Controller{
 
     public function __construct(){
 
-        $this->middleware('oauth', ['only' => ['indexAmigos','indexAllAmigos','indexPeticionesAmistad','enviarPeticionAmistad','aceptarAmistad']]);
+        $this->middleware('oauth', ['only' => ['indexAmigos','indexAllAmigos','indexPeticionesAmistad','enviarPeticionAmistad','aceptarAmistad', 'rechazarAmistad','eliminarPeticion']]);
     }
 
     public function indexAllAmigos($id){
@@ -44,7 +44,7 @@ class AmistadController extends Controller{
         }
 
         if ($usuario){
-            $amigos = $usuario->getAmigos()->orderby('nick','asc')->wherePivot('aceptado', true)->get();
+            $amigos = $usuario->getAmigos()->orderby('nick','asc')->wherePivot('aceptado', 1)->get();
             if ($amigos){
                 return $this->respuestaOK($amigos, 200);
             }
@@ -107,11 +107,50 @@ class AmistadController extends Controller{
         }
 
         if ($user && $friend){
-            $amistad1 = $friend->getAmigos()->find($user_id);
-            if ($amistad1){
+            $amistad = $friend->getAmigos()->find($user_id);
+            if ($amistad){
                 $friend->getAmigos()->updateExistingPivot($user_id, ['aceptado' => true]);
                 $user->getAmigos()->attach($friend_id, ['aceptado' => true]);
                 return $this->respuestaOK("Amistad aceptada", 200);     
+            }
+            return $this->respuestaError("No existe relación de amistad entre los usuarios", 404);
+        }
+        return $this->respuestaError("Alguno de los usuarios no existe", 404);
+    }
+
+    public function rechazarAmistad($user_id, $friend_id){
+        $user = User::find($user_id);
+        $friend = User::find($friend_id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($user_id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede rechazar esta amistad", 401);
+        }
+
+        if ($user && $friend){
+            $amistad = $friend->getAmigos()->find($user_id);
+            if ($amistad){
+                $friend->getAmigos()->updateExistingPivot($user_id, ['aceptado' => -1]);
+                return $this->respuestaOK("Amistad rechazada", 200);    
+            }
+            return $this->respuestaError("No existe relación de amistad entre los usuarios", 404);
+        }
+        return $this->respuestaError("Alguno de los usuarios no existe", 404);
+    }
+
+    public function eliminarPeticion($user_id, $friend_id){
+        $user = User::find($user_id);
+        $friend = User::find($friend_id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($user_id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede aceptar esta amistad", 401);
+        }
+        if ($user && $friend){
+            $amistad = $friend->getPeticionesAmistad()->find($user_id);
+            if ($amistad){
+                $user->getAmigos()->detach($friend_id);
+                return $this->respuestaOK("Amistad borrada", 200);     
             }
             return $this->respuestaError("No existe relación de amistad entre los usuarios", 404);
         }

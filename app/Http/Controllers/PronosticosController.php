@@ -74,6 +74,7 @@ class PronosticosController extends Controller{
                 $campos['partido_id'] = $partido->id;
                 $campos['user_id'] = $user->id;
                 $campos['porra_id'] = $request->get('id_porra');
+                $campos['cerrado'] = 0;
                 $pronostico = Pronostico::create($campos);
             }
         }
@@ -83,6 +84,7 @@ class PronosticosController extends Controller{
             $campos['porra_id'] = $request->get('id_porra');                
             $campos['goles_local'] = 0;
             $campos['goles_visitante'] = 0;
+            $campos['cerrado'] = 0;
             $pronostico = Pronostico::create($campos);
         }
         return $this->respuestaOK($porra->getPronosticos, 200);
@@ -110,7 +112,7 @@ class PronosticosController extends Controller{
      */
     public function edit($id)
     {
-        //
+        
     }
 
     /**
@@ -120,9 +122,20 @@ class PronosticosController extends Controller{
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
+    public function update(Request $request, $id_porra, $id_user){
+        $porra = Porra::find($id_porra);
+        if ($porra){
+            $pronosticos = json_decode($request->get('pronosticos'));
+            foreach ($pronosticos as $p) {
+                $pronostico = Pronostico::where('user_id', '=', $id_user)
+                                ->where('partido_id', '=', $p->partido_id)
+                                ->where('porra_id', '=', $id_porra)
+                                ->update(['goles_local' => $p->goles_local, 'goles_visitante' => $p->goles_visitante, 'cerrado' => 1]);
+            }
+            $porra->getUsuarios()->updateExistingPivot($id_user, ['pagado' => $request->get('pagado')]);
+            return $this->respuestaOK("Pronosticos modificados correctamente", 200);
+        }
+        return $this->respuestaError("No existe la porra", 404);
     }
 
     /**

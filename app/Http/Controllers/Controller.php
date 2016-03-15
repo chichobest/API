@@ -16,8 +16,13 @@ abstract class Controller extends BaseController{
 		return response()->json(['data' => $datos], $codigo);
     }
 
+
+    public function respuestaCount($datos, $codigo) {
+        return response()->json(['count' => sizeof($datos), 'data' => $datos], $codigo);
+    }
+
     public function respuestaError($mensaje, $codigo){
-    	return response()->json(['message' => $mensaje], $codigo);
+    	return response()->json(['error_description' => $mensaje], $codigo);
     }
 
     protected function buildFailedValidationResponse(Request $request, array $errors){

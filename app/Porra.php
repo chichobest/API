@@ -17,7 +17,7 @@ class Porra extends Model {
     }
 
     public function getUsuarios(){
-        return $this->belongsToMany('App\User');
+        return $this->belongsToMany('App\User')->withPivot('pagado');
     }
 
     public function getPronosticos(){

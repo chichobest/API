@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\User;
+use DB;
 
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
@@ -14,7 +15,7 @@ class UsersController extends Controller {
 
     public function __construct(){
 
-        $this->middleware('oauth', ['only' => ['connect','show','update','destroy']]);
+        $this->middleware('oauth', ['only' => ['index','connect','show','update','destroy']]);
     }
 
     public function connect(){
@@ -28,9 +29,15 @@ class UsersController extends Controller {
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(){
-        $usuarios = User::all();
-        return $this->respuestaOK($usuarios, 200);
+    public function index(Request $request){
+        $id_user = Authorizer::getResourceOwnerId();
+
+        $usuarios = DB::table('users')->select(DB::raw('users.id, users.nick, users.name, users.email, users.telefono, users.URL_image, friends.aceptado'))
+        ->leftJoin(DB::raw("(SELECT * FROM amistades WHERE user_id = $id_user) friends"), 'users.id', '=', 'friends.friend_id')
+        ->where('users.id','!=', $id_user)->orderby('users.nick')
+        ->get();
+
+        return $this->respuestaCount($usuarios, 200);
     }
 
     /**
@@ -103,7 +110,7 @@ class UsersController extends Controller {
             $usuario->URL_image = $request->get('URL_image');
             
             $usuario->save();
-            return $this->respuestaOK("Usuario $usuario->id editado correctamente", 202);
+            return $this->respuestaOK($usuario, 202);
         }
         return $this->respuestaError("El no corresponde a ningún usuario", 404);
     }
@@ -141,7 +148,7 @@ class UsersController extends Controller {
             'nick' => 'required',
             'password' => 'required',
             'name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
             'telefono' => 'required|numeric',
             'URL_image' => 'required',
         ];

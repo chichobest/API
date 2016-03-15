@@ -32,6 +32,7 @@ Route::get('porra/{id_porra}/user','UserPorrasController@indexUsersPorra');
 Route::get('/pronostico/user/{id_user}/porra/{id_porra}','PronosticosController@show');
 Route::get('/pronostico/{id_porra}','PronosticosController@index');
 Route::post('/pronostico', 'PronosticosController@store');
+Route::put('/pronostico/{id_porra}/user/{id_user}', 'PronosticosController@update');
 
 //Gestion de Amistad
 Route::get('/user/{user_id}/user', 'AmistadController@indexAmigos');
@@ -39,6 +40,8 @@ Route::get('/user/{user_id}/user/all', 'AmistadController@indexAllAmigos');
 Route::get('/user/user/{user_id}', 'AmistadController@indexPeticionesAmistad');
 Route::post('/user/{user_id}/user/{friend_id}', 'AmistadController@enviarPeticionAmistad');
 Route::put('/user/{user_id}/user/{friend_id}', 'AmistadController@aceptarAmistad');
+Route::put('/user/{user_id}/user/{friend_id}/rechazar', 'AmistadController@rechazarAmistad');
+Route::patch('/user/{user_id}/user/{friend_id}', 'AmistadController@eliminarPeticion');
 
 Route::post('oauth/access_token', function() {
     return Response::json(Authorizer::issueAccessToken());
