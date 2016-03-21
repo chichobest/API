@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\Porra;
+use Carbon\Carbon;
 
 class UserPorrasController extends Controller{
     /**
@@ -35,6 +36,28 @@ class UserPorrasController extends Controller{
         }   
         return $this->respuestaError("No existe el usuario", 404);
 
+    }
+
+    public function indexPorrasTerminadas($id_user){
+        $usuario = User::find($id_user);
+        date_default_timezone_set('Europe/Madrid');
+
+        if ($usuario){
+            $porras = $usuario->getPorras()->where('fecha_fin', '<=', Carbon::now())->get();
+            return $this->respuestaOK($porras, 200);   
+        }   
+        return $this->respuestaError("No existe el usuario", 404);
+    }
+
+    public function indexPorrasEnCurso($id_user){
+        $usuario = User::find($id_user);
+        date_default_timezone_set('Europe/Madrid');
+
+        if ($usuario){
+            $porras = $usuario->getPorras()->where('fecha_inicio', '<=', Carbon::now())->where('fecha_fin', '>=', Carbon::now())->get();
+            return $this->respuestaOK($porras, 200);   
+        }   
+        return $this->respuestaError("No existe el usuario", 404);
     }
 
     public function indexUsersPorra($id){

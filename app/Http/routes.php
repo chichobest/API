@@ -26,7 +26,9 @@ Route::post('/porra/{id_propietario}', 'UserPorrasController@store');
 
 Route::get('/user/{id_user}/porra','UserPorrasController@indexMisPorras');
 Route::get('/user/porra/{id_user}','UserPorrasController@indexPorrasUser');
-Route::get('porra/{id_porra}/user','UserPorrasController@indexUsersPorra');
+Route::get('/user/porra/{id_user}/inprogress','UserPorrasController@indexPorrasEnCurso');
+Route::get('/user/porra/{id_user}/finished','UserPorrasController@indexPorrasTerminadas');
+Route::get('/porra/{id_porra}/user','UserPorrasController@indexUsersPorra');
 
 
 Route::get('/pronostico/user/{id_user}/porra/{id_porra}','PronosticosController@show');
