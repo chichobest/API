@@ -13,6 +13,7 @@
 
 //Gestión de Usuarios
 Route::resource('user', 'UsersController', ['only' => ['index', 'show', 'store', 'update', 'destroy']]);
+Route::put('/user/{id}/GCMupdate', 'UsersController@refreshGCM');
 Route::get('/connect', 'UsersController@connect');
 
 //Gestion de porras
@@ -44,6 +45,8 @@ Route::post('/user/{user_id}/user/{friend_id}', 'AmistadController@enviarPeticio
 Route::put('/user/{user_id}/user/{friend_id}', 'AmistadController@aceptarAmistad');
 Route::put('/user/{user_id}/user/{friend_id}/rechazar', 'AmistadController@rechazarAmistad');
 Route::patch('/user/{user_id}/user/{friend_id}', 'AmistadController@eliminarPeticion');
+
+Route::post('/GCMsend', 'UsersController@enviarMensajePush');
 
 Route::post('oauth/access_token', function() {
     return Response::json(Authorizer::issueAccessToken());

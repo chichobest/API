@@ -59,6 +59,7 @@ class PorrasController extends Controller{
         $users = json_decode($request->get('users'));        
         $owner_id = Authorizer::getResourceOwnerId();
 
+        $arrayRegs = array();
         if ($porra){
             if ($porra->propietario != $owner_id){
                     return $this->respuestaError("El usuario conectado no puede modificar esta porra, sólo el propietario puede", 401);
@@ -69,9 +70,11 @@ class PorrasController extends Controller{
                     return $this->respuestaError("No existe el usuario $user->id", 404);
                 }
                 if (!$porra->getUsuarios()->find($user->id)){
-                    $porra->getUsuarios()->attach($user->id);  
+                    $porra->getUsuarios()->attach($user->id);
+                    array_push($arrayRegs, $usuario->GCMregister);
                 }
             }
+            $this->enviarMensajePush($arrayRegs, "Has sido añadido en la porra $porra->nombre");
             return $this->respuestaOK($porra->getUsuarios, 200);   
         }
         return $this->respuestaError("No existe la porra $id_porra", 404);

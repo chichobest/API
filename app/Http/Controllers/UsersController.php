@@ -15,7 +15,7 @@ class UsersController extends Controller {
 
     public function __construct(){
 
-        $this->middleware('oauth', ['only' => ['index','connect','show','update','destroy']]);
+        $this->middleware('oauth', ['only' => ['index','connect','show','update','refreshGCM','destroy']]);
     }
 
     public function connect(){
@@ -115,6 +115,23 @@ class UsersController extends Controller {
         return $this->respuestaError("El no corresponde a ningún usuario", 404);
     }
 
+    public function refreshGCM (Request $request, $id){
+        $usuario = User::find($id);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($id != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede modificar estos datos", 401);
+        }
+
+        if ($usuario){
+            $usuario->GCMregister = $request->get('reg_id');
+            
+            $usuario->save();
+            return $this->respuestaOK($usuario, 202);
+        }
+        return $this->respuestaError("El no corresponde a ningún usuario", 404);
+    }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -141,6 +158,46 @@ class UsersController extends Controller {
 
         return $this->respuestaError("El id no corresponde a ningún usuario", 404);
     }
+
+ /*   public function enviarMensajePush(Request $request){
+        define("GOOGLE_API_KEY", "AIzaSyAkNJ86_4GmtHTnz6PXN4vjd3ryaOpoc5U");
+        $reg_id = $request->get('reg_id');
+        $url = 'https://android.googleapis.com/gcm/send';
+        $fields = array(
+            'registration_ids' => array($reg_id),
+            'data' => array('message' => 'Mensaje de prueba'),
+            'delay_while_idle' => false,
+        );
+ 
+        $headers = array(
+            'Authorization: key=' . GOOGLE_API_KEY,
+            'Content-Type: application/json'
+        );
+        // Open connection
+        $ch = curl_init();
+ 
+        // Set the url, number of POST vars, POST data
+        curl_setopt($ch, CURLOPT_URL, $url);
+ 
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+ 
+        // Disabling SSL Certificate support temporarly
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+ 
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+
+        // Execute post
+        $result = curl_exec($ch);
+        if ($result === FALSE) {
+            die('Curl failed: ' . curl_error($ch));
+        }
+ 
+        // Close connection
+        curl_close($ch);
+        echo $result;
+    }*/
 
     public function validation ($request){
         $reglas =

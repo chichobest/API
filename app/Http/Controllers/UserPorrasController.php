@@ -10,7 +10,13 @@ use App\User;
 use App\Porra;
 use Carbon\Carbon;
 
-class UserPorrasController extends Controller{
+class UserPorrasController extends Controller {
+
+    public function __construct(){
+
+        $this->middleware('oauth', ['only' => ['destroy']]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -67,16 +73,6 @@ class UserPorrasController extends Controller{
             return $this->respuestaOK($usuarios, 200);
         }
         return $this->respuestaError("No existe el usuario", 404);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**

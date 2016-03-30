@@ -31,20 +31,7 @@ class PronosticosController extends Controller{
 
             return response()->json(['partidos' => $partidos , 'usuarios' => $users, 'user_pronosticos' => $pronosticos], 200);
         }
-    }
-
-    public function indexAll($id_porra){
-        $porra = Porra::distinct()->select('partido_id')->groupBy('user_id')->get();
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        return $this->respuestaError("No existe la porra", 404);
     }
 
     /**
@@ -65,8 +52,8 @@ class PronosticosController extends Controller{
         }
 
         foreach ($users as $user) {
+            $usuario = User::find($user->id);
             foreach ($partidos as $partido) {
-                $usuario = User::find($user->id);
                 if (!$usuario || !$porra){
                     return $this->respuestaError("Error al crear los pronosticos");
                 }

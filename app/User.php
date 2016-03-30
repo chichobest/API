@@ -24,14 +24,14 @@ class User extends Model implements AuthenticatableContract, CanResetPasswordCon
      *
      * @var array
      */
-    protected $fillable = ['id', 'nick', 'name', 'email', 'telefono', 'URL_image', 'password'];
+    protected $fillable = ['id', 'nick', 'name', 'email', 'telefono', 'URL_image', 'password', 'GCMregister'];
 
     /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
      */
-    protected $hidden = ['password', 'created_at', 'updated_at'];
+    protected $hidden = ['password', 'GCMregister', 'created_at', 'updated_at'];
 
     public function getMisPorras(){
         return $this->hasMany('App\Porra', 'propietario');
