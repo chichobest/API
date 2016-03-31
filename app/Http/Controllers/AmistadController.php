@@ -92,7 +92,7 @@ class AmistadController extends Controller{
                 return $this->aceptarAmistad($user_id,$friend_id);
             }
             $user->getAmigos()->attach($friend);
-            $this->enviarMensajePush($arrayRegs, "Has recibido una peticion de amistad de $user->nick");
+            $this->enviarMensajePush(array($friend->GCMregister), "Has recibido una peticion de amistad de $user->nick");
             return $this->respuestaOK("Solicitud de amistad enviada correctamente", 200);
         }
         return $this->respuestaError("Alguno de los usuarios no existe", 404);
