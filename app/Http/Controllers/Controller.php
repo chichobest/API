@@ -32,9 +32,15 @@ abstract class Controller extends BaseController{
     public function enviarMensajePush($regs, $msg, $flag){
         define("GOOGLE_API_KEY", "AIzaSyAkNJ86_4GmtHTnz6PXN4vjd3ryaOpoc5U");
         $url = 'https://android.googleapis.com/gcm/send';
-        $fields = array(
+        /*$fields = array(
             'registration_ids' => $regs,
             'data' => array('message' => $msg, 'flag' => $flag),
+            'delay_while_idle' => false,
+        );*/
+
+        $fields = array(
+            'registration_ids' => $regs,
+            'data' => array('message' => 'Mensaje de prueba', 'flag' => 'amistad'),
             'delay_while_idle' => false,
         );
  
@@ -66,5 +72,5 @@ abstract class Controller extends BaseController{
         // Close connection
         curl_close($ch);
         echo $result;
-    }*/
+    }
 }
