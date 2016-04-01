@@ -159,13 +159,13 @@ class UsersController extends Controller {
         return $this->respuestaError("El id no corresponde a ningún usuario", 404);
     }
 
- /*   public function enviarMensajePush(Request $request){
+    /*public function enviarMensajePush(Request $request){
         define("GOOGLE_API_KEY", "AIzaSyAkNJ86_4GmtHTnz6PXN4vjd3ryaOpoc5U");
         $reg_id = $request->get('reg_id');
         $url = 'https://android.googleapis.com/gcm/send';
         $fields = array(
             'registration_ids' => array($reg_id),
-            'data' => array('message' => 'Mensaje de prueba'),
+            'data' => array('message' => 'Mensaje de prueba', 'flag' => 'amistad'),
             'delay_while_idle' => false,
         );
  

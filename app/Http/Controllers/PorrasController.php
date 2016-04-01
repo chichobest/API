@@ -74,7 +74,7 @@ class PorrasController extends Controller{
                     array_push($arrayRegs, $usuario->GCMregister);
                 }
             }
-            $this->enviarMensajePush($arrayRegs, "Has sido añadido en la porra $porra->nombre");
+            $this->enviarMensajePush($arrayRegs, "Has sido añadido en la porra $porra->nombre", "porra");
             return $this->respuestaOK($porra->getUsuarios, 200);   
         }
         return $this->respuestaError("No existe la porra $id_porra", 404);

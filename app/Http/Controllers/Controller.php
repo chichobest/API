@@ -29,12 +29,12 @@ abstract class Controller extends BaseController{
     	return $this->respuestaError($errors, 422);
     }
 
-    public function enviarMensajePush($regs, $msg){
+    public function enviarMensajePush($regs, $msg, $flag){
         define("GOOGLE_API_KEY", "AIzaSyAkNJ86_4GmtHTnz6PXN4vjd3ryaOpoc5U");
         $url = 'https://android.googleapis.com/gcm/send';
         $fields = array(
             'registration_ids' => $regs,
-            'data' => array('message' => $msg),
+            'data' => array('message' => $msg, 'flag' => $flag),
             'delay_while_idle' => false,
         );
  
@@ -66,5 +66,5 @@ abstract class Controller extends BaseController{
         // Close connection
         curl_close($ch);
         echo $result;
-    }
+    }*/
 }
