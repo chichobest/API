@@ -46,7 +46,7 @@ Route::put('/user/{user_id}/user/{friend_id}', 'AmistadController@aceptarAmistad
 Route::put('/user/{user_id}/user/{friend_id}/rechazar', 'AmistadController@rechazarAmistad');
 Route::patch('/user/{user_id}/user/{friend_id}', 'AmistadController@eliminarPeticion');
 
-Route::post('/GCMsend', 'UsersController@enviarMensajePush');
+Route::post('/GCMsend', 'UsersController@enviarMensaje');
 
 Route::post('oauth/access_token', function() {
     return Response::json(Authorizer::issueAccessToken());

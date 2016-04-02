@@ -159,45 +159,12 @@ class UsersController extends Controller {
         return $this->respuestaError("El id no corresponde a ningún usuario", 404);
     }
 
-    /*public function enviarMensajePush(Request $request){
-        define("GOOGLE_API_KEY", "AIzaSyAkNJ86_4GmtHTnz6PXN4vjd3ryaOpoc5U");
+    public function enviarMensaje(Request $request){
         $reg_id = $request->get('reg_id');
-        $url = 'https://android.googleapis.com/gcm/send';
-        $fields = array(
-            'registration_ids' => array($reg_id),
-            'data' => array('message' => 'Mensaje de prueba', 'flag' => 'amistad'),
-            'delay_while_idle' => false,
-        );
- 
-        $headers = array(
-            'Authorization: key=' . GOOGLE_API_KEY,
-            'Content-Type: application/json'
-        );
-        // Open connection
-        $ch = curl_init();
- 
-        // Set the url, number of POST vars, POST data
-        curl_setopt($ch, CURLOPT_URL, $url);
- 
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
- 
-        // Disabling SSL Certificate support temporarly
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
- 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
-
-        // Execute post
-        $result = curl_exec($ch);
-        if ($result === FALSE) {
-            die('Curl failed: ' . curl_error($ch));
-        }
- 
-        // Close connection
-        curl_close($ch);
-        echo $result;
-    }*/
+        $msg = $request->get('msg');
+        $flag = $request->get('flag');
+        $this->enviarMensajePush(array($reg_id), $msg, $flag);
+    }
 
     public function validation ($request){
         $reglas =

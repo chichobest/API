@@ -112,6 +112,7 @@ class AmistadController extends Controller{
             if ($amistad){
                 $friend->getAmigos()->updateExistingPivot($user_id, ['aceptado' => true]);
                 $user->getAmigos()->attach($friend_id, ['aceptado' => true]);
+                $this->enviarMensajePush(array($friend->GCMregister), "$user->nick ha aceptado tu solicitud de amistad", 'aceptado');
                 return $this->respuestaOK("Amistad aceptada", 200);     
             }
             return $this->respuestaError("No existe relación de amistad entre los usuarios", 404);
