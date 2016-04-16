@@ -20,6 +20,7 @@ class UsersMigration extends Migration
             $table->string('email');
             $table->string('telefono');
             $table->string('URL_image');
+            $table->string('GCMregister');
             $table->timestamps();
         });
     }
