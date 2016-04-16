@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\User;
+use App\Pronostico;
 use LucaDegasperi\OAuth2Server\Facades\Authorizer;
 
 use App\Porra;
@@ -14,7 +15,7 @@ use App\Porra;
 class PorrasController extends Controller{
 
     public function __construct(){
-        $this->middleware('oauth', ['only' => ['show','addUser','initUsersPorra', 'update','destroy']]);
+        $this->middleware('oauth', ['only' => ['show','borrarPorra','addUser','removeUser','addPartido','removePartido','initUsersPorra','restartPartidosPorra','update','destroy']]);
     }
 
     /**
@@ -80,8 +81,9 @@ class PorrasController extends Controller{
         return $this->respuestaError("No existe la porra $id_porra", 404);
     }
 
-    public function addUser($id_porra, $id_usuario){
+    public function addUser(Request $request, $id_porra, $id_usuario){
         $porra = Porra::find($id_porra);
+        $partidos = json_decode($request->get('partidos'));
 
         $owner_id = Authorizer::getResourceOwnerId();
 
@@ -95,6 +97,17 @@ class PorrasController extends Controller{
                     return $this->respuestaError("El usuario $id_usuario ya pertenece a esta porra", 409);  
                 }
                 $porra->getUsuarios()->attach($id_usuario);
+                foreach ($partidos as $partido) {
+                    $campos['partido_id'] = $partido->id;
+                    $campos['user_id'] = $id_usuario;
+                    $campos['porra_id'] = $id_porra;                
+                    $campos['goles_local'] = 0;
+                    $campos['goles_visitante'] = 0;
+                    $campos['cerrado'] = 0;
+                    $pronostico = Pronostico::create($campos);
+                }
+                $porra->n_jugadores = $porra->n_jugadores + 1;
+                $porra->save();
                 return $this->respuestaOK("Usuario añadido correctamente a la porra $id_porra", 200);               
             }
             return $this->respuestaError("No existe el usuario $id_usuario", 404);
@@ -102,20 +115,132 @@ class PorrasController extends Controller{
         return $this->respuestaError("No existe la porra $id_porra", 404);
     }
 
+    public function removeUser ($id_porra, $id_usuario) {
+        $porra = Porra::find($id_porra);
+        $owner_id = Authorizer::getResourceOwnerId();
+
+        if ($porra){
+            $usuario = User::find($id_usuario);
+            if ($usuario){
+                if ($porra->propietario != $owner_id){
+                    if ($id_usuario != $owner_id)
+                        return $this->respuestaError("El usuario conectado no puede modificar esta porra", 401);
+                }
+                if ($porra->getUsuarios()->find($id_usuario)){
+                    $porra->getUsuarios()->detach($id_usuario);
+                    $usuario->getPronosticos()->where('porra_id','=', $porra->id)->delete();
+                    $porra->n_jugadores = $porra->n_jugadores - 1;
+                    $porra->save();
+                    return $this->respuestaOK("El usuario $usuario->nick se ha eliminado correctamente", 200);  
+                }
+                return $this->respuestaOK("El usuario no se ha podido eliminar", 404);               
+            }
+            return $this->respuestaError("No existe el usuario", 404);
+        }
+        return $this->respuestaError("No existe la porra $id_porra", 404);
+    }
+
+    public function addPartido (Request $request, $id_porra, $id_partido){
+        $porra = Porra::find($id_porra);
+        $owner_id = Authorizer::getResourceOwnerId();
+        $users = json_decode($request->get('users'));
+
+        if ($porra){
+            if ($porra->propietario != $owner_id){
+                return $this->respuestaError("El usuario conectado no puede modificar esta porra", 401);
+            }
+            $partido = $porra->getPronosticos()->where('partido_id', '=', $id_partido)->get();
+            if (sizeof($partido)!=0) {
+                return $this->respuestaError("El partido ya existe en esta porra", 409);
+            }
+            foreach ($users as $user) {
+                $usuario = User::find($user->id);
+                if ($usuario){
+                    $campos['partido_id'] = $id_partido;
+                    $campos['user_id'] = $user->id;
+                    $campos['porra_id'] = $id_porra;
+                    $campos['cerrado'] = 0;
+                    $pronostico = Pronostico::create($campos);
+                }
+            }
+            return $this->respuestaOK("Partido añadido correctamente", 200);               
+        }
+        return $this->respuestaError("No existe la porra $id_porra", 404);
+    }
+
+    public function removePartido (Request $request, $id_porra, $id_partido){
+        $porra = Porra::find($id_porra);
+        $owner_id = Authorizer::getResourceOwnerId();       
+        $users = json_decode($request->get('users'));
+
+        if ($porra){            
+            if ($porra->propietario != $owner_id){
+                return $this->respuestaError("El usuario conectado no puede modificar esta porra", 401);
+            }
+            foreach ($users as $user) {
+                $usuario = User::find($user->id);
+                $usuario->getPronosticos()->where('partido_id', '=', $id_partido)->delete();
+            }
+            return $this->respuestaOK("Partido eliminado correctamente", 200);
+        }
+        return $this->respuestaError("No existe la porra $id_porra", 404);
+    }
+
+    public function restartPartidosPorra (Request $request, $id_porra){
+        $porra = Porra::find($id_porra);
+        $owner_id = Authorizer::getResourceOwnerId();       
+        $users = json_decode($request->get('users'));
+        $partidos = json_decode($request->get('partidos'));
+
+        $arrayRegs = array();
+        if ($porra){            
+            if ($porra->propietario != $owner_id){
+                return $this->respuestaError("El usuario conectado no puede modificar esta porra", 401);
+            }
+
+            $porra->getPronosticos()->delete();
+            $porra->fecha_inicio = $request->get('fecha_inicio');
+            $porra->fecha_fin = $request->get('fecha_fin');
+            $porra->bote = $request->get('bote');
+            $porra->vuelta = $porra->vuelta+1;
+            $porra->save();
+            foreach ($users as $user) {
+                $usuario = User::find($user->id);
+                foreach ($partidos as $partido) {
+                    if (!$usuario || !$porra){
+                        return $this->respuestaError("Error al crear los pronosticos");
+                    }
+                    $campos['partido_id'] = $partido->id;
+                    $campos['user_id'] = $user->id;
+                    $campos['porra_id'] = $id_porra;
+                    $campos['cerrado'] = 0;
+                    $pronostico = Pronostico::create($campos);
+                }
+                if ($usuario->id!=$owner_id)
+                    array_push($arrayRegs, $usuario->GCMregister);
+                $porra->getUsuarios()->updateExistingPivot($user->id, ['pagado' => 0]);
+            }
+
+            $this->enviarMensajePush($arrayRegs, "Has sido añadido a la porra $porra->nombre", "porra");
+            return $this->respuestaOK("Porra reiniciada correctamente", 200);
+        }
+        return $this->respuestaError("No existe la porra $id_porra", 404);
+    }
+
+
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id) {
+    public function borrarPorra($id) {
         $porra = Porra::find($id);
 
         $owner_id = Authorizer::getResourceOwnerId();
-        $propietario_id = Porra::getPropietario()->id();
 
-        if ($id != $owner_id){
-            return $propietario_id->respuestaError("El usuario conectado no puede modificar esta porra, sólo el propietario puede", 401);
+        if ($porra->propietario != $owner_id){
+            return $this->respuestaError("El usuario conectado no puede borrar esta porra", 401);
         }
 
         if ($porra){

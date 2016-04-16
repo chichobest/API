@@ -17,21 +17,23 @@ Route::put('/user/{id}/GCMupdate', 'UsersController@refreshGCM');
 Route::get('/connect', 'UsersController@connect');
 
 //Gestion de porras
-Route::resource('porra', 'PorrasController', ['only' => ['show', 'update', 'destroy']]);
+Route::get('/porra/{id_porra}', 'PorrasController@show');
 Route::post('/porra/{id_porra}/user/{id_user}','PorrasController@addUser');
+Route::post('/porra/{id_porra}/partido/{id_partido}', 'PorrasController@addPartido');
 Route::post('/porra/{id_porra}/init','PorrasController@initUsersPorra');
-
-Route::post('/porra/{id_propietario}', 'UserPorrasController@store');
-//Route::resource('pronostico', 'PronosticosController');
-//Route::resource('user.porra', 'UserPorrasController');
+Route::put('/porra/{id_porra}', 'PorrasController@restartPartidosPorra');
+Route::patch('/porra/{id_porra}', 'PorrasController@borrarPorra');
+Route::patch('/porra/{id_porra}/user/{id_user}', 'PorrasController@removeUser');
+Route::patch('/porra/{id_porra}/partido/{id_partido}', 'PorrasController@removePartido');
 
 Route::get('/user/{id_user}/porra','UserPorrasController@indexMisPorras');
 Route::get('/user/porra/{id_user}','UserPorrasController@indexPorrasUser');
 Route::get('/user/porra/{id_user}/inprogress','UserPorrasController@indexPorrasEnCurso');
 Route::get('/user/porra/{id_user}/finished','UserPorrasController@indexPorrasTerminadas');
 Route::get('/porra/{id_porra}/user','UserPorrasController@indexUsersPorra');
+Route::post('/porra/{id_propietario}', 'UserPorrasController@store');
 
-
+//Gestion pronósticos
 Route::get('/pronostico/user/{id_user}/porra/{id_porra}','PronosticosController@show');
 Route::get('/pronostico/{id_porra}','PronosticosController@index');
 Route::post('/pronostico', 'PronosticosController@store');

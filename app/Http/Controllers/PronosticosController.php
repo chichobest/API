@@ -28,8 +28,9 @@ class PronosticosController extends Controller{
             $partidos = DB::select('select distinct partido_id from pronosticos where porra_id = ?', [$id_porra]);
             $pronosticos = $porra->getPronosticos->groupBy('user_id');
             $users = $porra->getUsuarios; 
+            $propietario = User::find($porra->propietario);
 
-            return response()->json(['partidos' => $partidos , 'usuarios' => $users, 'user_pronosticos' => $pronosticos], 200);
+            return response()->json(['propietario' => $propietario, 'partidos' => $partidos, 'usuarios' => $users, 'user_pronosticos' => $pronosticos], 200);
         }
         return $this->respuestaError("No existe la porra", 404);
     }
